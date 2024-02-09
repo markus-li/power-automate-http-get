@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+</head>
+<body>
+    <!-- Content can go here. The script will replace this content upon execution. -->
+    <p>Loading... Please wait.</p>
+
+    <script>
+    window.onload = function() {
+        // Extract parameters from URL
+        const params = new URLSearchParams(window.location.search);
+        const uuid = params.get('uuid'); // Get UUID from URL
+        const flowUrl = params.get('flowUrl'); // Dynamically get the Flow URL from URL
+
+        // Security check: Validate or sanitize 'flowUrl' here
+        if (flowUrl && uuid && /^https:\/\/prod-[0-9]+\.australiasoutheast\.logic\.azure\.com\/workflows\/[a-zA-Z0-9]{32}\/triggers\/manual\/paths\/invoke\?/.test(flowUrl)) {
+            // Perform the POST request to the dynamically provided Flow URL
+            fetch(flowUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ uuid: uuid })
+            })
+            .then(response => {
+                // Handle response
+                document.body.innerHTML = '<p>Thank you for verifying your email.</p>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.body.innerHTML = '<p>Error processing your request. Please try again.</p>';
+            });
+        } else {
+            // Handle cases where 'flowUrl' or 'uuid' are not provided or fail validation
+            document.body.innerHTML = '<p>Error: Invalid request. Please ensure the link is correct.</p>';
+        }
+    };
+    </script>
+</body>
+</html>
